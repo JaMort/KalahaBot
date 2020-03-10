@@ -1,0 +1,8 @@
+*.sln
+.vs
+KalahaBot/bin
+KalahaBot/obj
+KalahaBot/Properties
+KalahaBot/KalahaBot.csproj
+KalahaBot/KalahaBot.csproj.user
+
