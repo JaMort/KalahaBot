@@ -16,6 +16,9 @@ namespace KalahaBot
             this.board = board;
         }
 
+        /// <summary>
+        /// Initializes and starts the game
+        /// </summary>
         public void init()
         {
             Console.WriteLine("Is the north player a human? (y/n)");
@@ -24,12 +27,11 @@ namespace KalahaBot
                 if (northPlayerPrompt.Equals("y"))
                 {
                     player2 = new HumanPlayer(true);
-                    player2.init();
                     break;
                 }
                 else if (northPlayerPrompt.Equals("n"))
                 {
-                    throw new System.NotImplementedException();
+                    player2 = new AIPlayer(board, true);
                     break;
                 }
                 else
@@ -37,18 +39,18 @@ namespace KalahaBot
                     Console.WriteLine("Please write either y or n");
                 }
             }
+            player2.init();
             Console.WriteLine("Is the south player a human? (y/n)");
             string southPlayerPrompt = Console.ReadLine();
             while (true) {
                 if (southPlayerPrompt.Equals("y"))
                 {
                     player1 = new HumanPlayer(false);
-                    player1.init();
                     break;
                 }
                 else if (southPlayerPrompt.Equals("n"))
                 {
-                    throw new System.NotImplementedException();
+                    player1 = new AIPlayer(board, false);
                     break;
                 }
                 else
@@ -56,7 +58,7 @@ namespace KalahaBot
                     Console.WriteLine("Please write either y or n");
                 }
             }
-
+            player1.init();
             IPlayer currentPlayer = player1;
             while (true)
             {

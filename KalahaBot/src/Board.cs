@@ -12,6 +12,8 @@ namespace KalahaBot
         private int[] pits;
         private int indexNorthKalaha, indexSouthKalaha;
         private int pitCount, initialBalls;
+        public bool retry { get; set; }
+
 
         /// <summary>
         /// Creates a board with standard settings.
@@ -19,6 +21,7 @@ namespace KalahaBot
         public Board()
         {
             this.pitCount = 6; this.initialBalls = 6;
+            this.retry = false;
             initPits();
         }
 
@@ -32,7 +35,7 @@ namespace KalahaBot
             this.pitCount           = boardToCopy.getNorthSide().Length;
             this.initialBalls       = boardToCopy.getInitialBalls();
             this.indexNorthKalaha   = this.pitCount;
-            this.indexSouthKalaha   = this.pitCount*2;
+            this.indexSouthKalaha   = this.pitCount*2+1;
 
             // Copy array
             this.pits = new int[this.pitCount * 2 + 2];
@@ -130,6 +133,17 @@ namespace KalahaBot
             }
         }
 
+        public int[] getSide(bool isNorth)
+        {
+            if (isNorth)
+            {
+                return getNorthSide();
+            }
+            else
+            {
+                return getSouthSide();
+            }
+        }
         public int[] getNorthSide()
         {
             int[] res = new int[this.pitCount];
@@ -239,34 +253,41 @@ namespace KalahaBot
                 }
 
                 // Check if turn shall continue
-                if (currPos == indexNorthKalaha || currPos == indexSouthKalaha) {
-                    bool continueTurn = false;
+                if (currPos == indexNorthKalaha || currPos == indexSouthKalaha)
+                {
+                    //bool continueTurn = false;
+                    retry = false;
                     if (currPos == indexNorthKalaha)
                     {
-                        foreach(int pit in getNorthSide())
+                        foreach (int pit in getNorthSide())
                         {
-                            if(pit != 0)
+                            if (pit != 0)
                             {
-                                continueTurn = true;
+                                //continueTurn = true;
+                                retry = true;
                                 break;
                             }
                         }
                     }
                     else
                     {
-                        foreach(int pit in getSouthSide())
+                        foreach (int pit in getSouthSide())
                         {
-                            if(pit != 0)
+                            if (pit != 0)
                             {
-                                continueTurn = true;
+                                //continueTurn = true;
+                                retry = true;
                                 break;
                             }
                         }
                     }
-                    return continueTurn;
+                    return retry;
                 }
                 else if (pits[currPos] <= 1)
+                {
+                    retry = false;
                     return false;
+                }
             }
         }
 
