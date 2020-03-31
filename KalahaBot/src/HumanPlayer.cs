@@ -9,15 +9,15 @@ namespace KalahaBot
 
 
         public string name { get; set; }
-        private bool isNorth { get; set; } 
+        private Side side { get; set; } 
 
         /// <summary>
         /// Constructor for HumanPlayer.
         /// </summary>
-        /// <param name="isNorth">a boolean specifying if the player is north side or not.</param>
-        public HumanPlayer(bool isNorth)
+        /// <param name="side">The players side</param>
+        public HumanPlayer(Side side)
         {
-            this.isNorth = isNorth;
+            this.side = side;
         }
 
         /// <summary>
@@ -32,35 +32,23 @@ namespace KalahaBot
         }
 
         /// <summary>
-        /// Makes a move on a given board
+        /// Makes a move on a given board.
         /// </summary>
-        /// <param name="board">Returns the given board</param>
+        /// <param name="board">The actual board which is used to decide state</param>
         public void makeMove(Board board)
         {
             Console.WriteLine(name + ", which pit do you want to take from? (1-" + board.PitCount + ")");
-            int choice = Convert.ToInt32(Console.ReadLine());
-            if (isNorth)
+
+            if (board.move(side, Convert.ToInt32(Console.ReadLine()) - 1))
             {
-                if (board.move(Side.NORTH, choice - 1))
-                {
-                    Console.WriteLine(board);
-                    makeMove(board);
-                };
+                Console.WriteLine(board);
+                makeMove(board);
             }
-            else
-            {
-                if (board.move(Side.SOUTH, choice - 1))
-                {
-                    Console.WriteLine(board);
-                    makeMove(board);
-                };
-            }
-            
         }
 
         public override string ToString()
         {
-            return "Player name is: " + this.name + ", Player is north: " + this.isNorth;
+            return "Player name is: " + this.name + ", Player is: " + this.side.ToString();
         }
     }
 }

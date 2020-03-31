@@ -23,7 +23,7 @@ namespace KalahaBot
             while (true) {
                 if (northPlayerPrompt.Equals("y"))
                 {
-                    player2 = new HumanPlayer(true);
+                    player2 = new HumanPlayer(Side.NORTH);
                     player2.init();
                     break;
                 }
@@ -42,7 +42,7 @@ namespace KalahaBot
             while (true) {
                 if (southPlayerPrompt.Equals("y"))
                 {
-                    player1 = new HumanPlayer(false);
+                    player1 = new HumanPlayer(Side.SOUTH);
                     player1.init();
                     break;
                 }
