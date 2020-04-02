@@ -6,8 +6,6 @@ namespace KalahaBot
 {
     class HumanPlayer : IPlayer
     {
-
-
         public string name { get; set; }
         private Side side { get; set; } 
 
@@ -28,7 +26,6 @@ namespace KalahaBot
             Console.WriteLine("Please give me a name:");
             name = Console.ReadLine();
             Console.WriteLine("Username is: " + name);
-
         }
 
         /// <summary>
@@ -37,7 +34,7 @@ namespace KalahaBot
         /// <param name="board">The actual board which is used to decide state</param>
         public void makeMove(Board board)
         {
-            Console.WriteLine(name + ", which pit do you want to take from? (1-" + board.PitCount + ")");
+            Console.WriteLine(name + ", which pit do you want to take from? (1-" + board.getPitCount() + ")");
 
             if (board.move(side, Convert.ToInt32(Console.ReadLine()) - 1))
             {

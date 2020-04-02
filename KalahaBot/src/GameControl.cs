@@ -63,17 +63,17 @@ namespace KalahaBot
                 Console.WriteLine("Current player: " + currentPlayer.name);
                 Console.WriteLine(this.board);
                 currentPlayer.makeMove(this.board);
-                if(board.getKalaha(Side.NORTH) > (board.PitCount * board.getInitialBalls()))
+                if(board.getKalaha(Side.NORTH) > (board.getPitCount() * board.getInitialBalls()))
                 {
                     Console.WriteLine(player2.name + " wins");
                     break;
                 }
-                if (board.getKalaha(Side.SOUTH) > (board.PitCount * board.getInitialBalls()))
+                if (board.getKalaha(Side.SOUTH) > (board.getPitCount() * board.getInitialBalls()))
                 {
                     Console.WriteLine(player1.name + " wins");
                     break;
                 }
-                if(board.getKalaha(Side.SOUTH) == (board.PitCount*board.getInitialBalls()) && board.getKalaha(Side.NORTH) == (board.PitCount * board.getInitialBalls()))
+                if(board.getKalaha(Side.SOUTH) == (board.getPitCount()*board.getInitialBalls()) && board.getKalaha(Side.NORTH) == (board.getPitCount() * board.getInitialBalls()))
                 {
                     Console.WriteLine("issa tie");
                     break;

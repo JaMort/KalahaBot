@@ -32,7 +32,7 @@ namespace KalahaBot
             this.pitCount           = boardToCopy.getNorthSide().Length;
             this.initialBalls       = boardToCopy.getInitialBalls();
             this.indexNorthKalaha   = this.pitCount;
-            this.indexSouthKalaha   = this.pitCount*2;
+            this.indexSouthKalaha   = this.pitCount*2+1;
 
             // Copy array
             this.pits = new int[this.pitCount * 2 + 2];
@@ -130,6 +130,8 @@ namespace KalahaBot
             }
         }
 
+        public int getPitCount() { return this.pitCount; }
+
         public int[] getNorthSide()
         {
             int[] res = new int[this.pitCount];
@@ -210,10 +212,6 @@ namespace KalahaBot
             sb.Append("\n");
             // Return the created String
             return sb.ToString();
-        }
-        public int PitCount
-        {
-            get { return this.pitCount; }
         }
 
         private bool makeMove(int start, int indexAvoid)
