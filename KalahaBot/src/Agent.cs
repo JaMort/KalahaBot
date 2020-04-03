@@ -47,17 +47,6 @@ namespace KalahaBot
             return -1;
         }
 
-        /// <summary>
-        /// REMOVE!
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="maximizingPlayer"></param>
-        /// <returns></returns>
-        public State[] testExpand(State state, Side maximizingPlayer)
-        {
-            return expand(state, maximizingPlayer);
-        }
-
         private State[] expand(State state, Side maximizingPlayer)
         {
             int pitCount = state.board.getPitCount();
@@ -86,6 +75,19 @@ namespace KalahaBot
             if (state.retry)
                 state.value *= RETRY_MULT;
                 */
+        }
+
+        /////////////////////////////////// TEST SECTION! ///////////////////////////////////
+
+        /// <summary>
+        /// REMOVE!
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="maximizingPlayer"></param>
+        /// <returns></returns>
+        public State[] testExpand(State state, Side maximizingPlayer)
+        {
+            return expand(state, maximizingPlayer);
         }
     }
 }
