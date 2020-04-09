@@ -1,28 +1,76 @@
 using System;
+using System.Collections.Generic;
 
 namespace KalahaBot
 {
-    public struct State
+    public class Node
     {
-        public Board board;
         public int value;
-        public int takePosition;
-        public bool retry;
+        public int takePrev;
+        public int takeNext;
+        public Board board;
+        public bool isMaximizing;
+        public Side whoTurn;
+        public Node parent = null;
+        public List<Node> children;
 
-        public State(Board board)
+        public Node() {}
+
+        public Node(Board board, Side side)
         {
-            this.board = board;
-            this.value = Int32.MinValue;
-            this.takePosition = -1;
-            this.retry = false;
+            this.board = new Board(board);
+            this.whoTurn = side;
+            if (side == Side.NORTH)
+                this.isMaximizing = true;
+            else
+                this.isMaximizing = false;
         }
 
-        public State(Board board, int takePosition, bool retry)
+        public void expand()
         {
-            this.board = board;
-            this.takePosition = takePosition;
-            this.value = Int32.MinValue;
-            this.retry = retry;
+            // Create the List
+            this.children = new List<Node>(this.board.getPitCount());
+
+            // Make move for every pit
+            for (int takePos=0; takePos < board.getPitCount(); takePos++)
+            {
+                if (isExpandable(board, takePos))
+                {
+                    // Make move
+                    Board nBoard    = new Board(board);
+                    bool retry      = nBoard.move(whoTurn, takePos);
+
+                    // Create node
+                    Node nNode      = new Node();
+                    nNode.parent    = this;
+                    nNode.takePrev  = takePos;
+                    nNode.board     = nBoard;
+                    nNode.isMaximizing  = (retry) ? this.isMaximizing : !this.isMaximizing;
+                    switch (whoTurn)
+                    {
+                        case Side.NORTH:
+                            nNode.whoTurn = (retry) ? Side.NORTH: Side.SOUTH;
+                            break;
+
+                        case Side.SOUTH:
+                            nNode.whoTurn = (retry) ? Side.SOUTH: Side.NORTH;
+                            break;
+                    }
+                    
+                    // Add the new node
+                    this.children.Add(nNode);
+                }
+            }
+        }
+
+        private bool isExpandable(Board board, int takePos)
+        {
+            return board.getPits(whoTurn)[takePos] > 0;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}\nValue: {1}, Prev Take Index: {2}, Next Take Index: {5}, Maximizing: {3}, Turn: {4}\n", board, this.value, this.takePrev, this.isMaximizing, this.whoTurn, this.takeNext);
         }
     }
 
@@ -31,172 +79,106 @@ namespace KalahaBot
         private const int RETRY_MULT = 10;
         private const int KALAHA_MULT = 1;
         public string name { get; set; }
+        private Side side;
+        private long statesExpanded;
+
+        public Agent(Side side) { this.side = side; }
 
         public void init()
         {
-
+            Console.WriteLine("What should the AI be called?");
+            this.name = Console.ReadLine();
         }
 
         public void makeMove(Board board)
         {
+            bool retry = false;
+            do 
+            {
+                // Reset state counter
+                statesExpanded = 0;
+
+                // Create node/state
+                Node currState = new Node(board, this.side);
+
+                //Console.WriteLine("---------------- INITIAL STATE ----------------\n" + currState + "\n---------------- END Initial state ----------------\n");
+
+                // Run minimax
+                minimax(currState, 8);
+
+                //Console.WriteLine("---------------- NEW STATE ----------------\n" + currState + "\n ---------------- END New state ----------------\n");
+
+                // Make move
+                Console.WriteLine(string.Format("{0} takes from pit {1} - Searched {2} states\n", this.name, currState.takeNext+1, this.statesExpanded));
+                retry = board.move(this.side, currState.takeNext);
+            }
+            while(retry);
 
         }
 
-        private State minimax(State state, Side maximizingPlayer, int depth)
+        private Node minimax(Node state, int depth)
         {
-            State[] states;
-            State best = new State(state.board); // Dummy
+            // Update states expanded
+            statesExpanded++;
 
             // Terminating condition
             if (depth == 0)
+            {
+                state.value = valueState(state);
+                //Console.WriteLine("---------------- Terminating call ----------------\n" + state + "---------------- END ----------------");
                 return state;
-
-            // Expand states
-            states = expand(state, maximizingPlayer);
-
-            // Maximize for correct player
-            switch (maximizingPlayer)
-            {
-                case Side.NORTH:
-                    if (state.retry)
-                    {
-                        foreach (State currState in states)
-                        {
-                            // Retrieve the best state
-                            State nState = minimax(currState, maximizingPlayer, depth-1);
-
-                            // Value the state
-                            valueState(nState, maximizingPlayer);
-
-                            // Check it
-                            if (nState.value > best.value)
-                                best = nState;
-                        }
-                    }
-                    else
-                    {
-                        foreach (State currState in states)
-                        {
-                            // Retrieve the best state
-                            State nState = minimax(currState, Side.SOUTH, depth-1);
-
-                            // Value the state
-                            valueState(nState, maximizingPlayer);
-
-                            // Check it
-                            if (nState.value > best.value)
-                                best = nState;
-                        }
-                    }
-                    break;
-
-                case Side.SOUTH:
-                    if (state.retry)
-                        {
-                            foreach (State currState in states)
-                            {
-                                // Retrieve the best state
-                                State nState = minimax(currState, maximizingPlayer, depth-1);
-
-                                // Value the state
-                                valueState(nState, maximizingPlayer);
-
-                                // Check it
-                                if (nState.value > best.value)
-                                    best = nState;
-                            }
-                        }
-                        else
-                        {
-                            foreach (State currState in states)
-                            {
-                                // Retrieve the best state
-                                State nState = minimax(currState, Side.NORTH, depth-1);
-
-                                // Value the state
-                                valueState(nState, maximizingPlayer);
-
-                                // Check it
-                                if (nState.value > best.value)
-                                    best = nState;
-                            }
-                        }
-                    break;
-
-                default:
-                    Console.WriteLine("ERROR: Hit default case in Minimax switch!");
-                    break;
             }
 
-            return best;
-        }
+            // Expand nodes
+            state.expand();
 
-        private State[] expand(State state, Side maximizingPlayer)
-        {
-            int pitCount = state.board.getPitCount();
-            State[] nStates = new State[pitCount];
-
-            // For every possible move make a new state
-            bool retry;
-            for (int takePos=0; takePos < pitCount; takePos++)
+            // Find best
+            int bestValue;
+            Node bestNode = new Node();
+            if (state.isMaximizing)
             {
-                // Copy board
-                Board nBoard = new Board(state.board);
-
-                // Make move
-                retry = nBoard.move(maximizingPlayer, takePos);
-
-                // Create the new state
-                nStates[takePos] = new State(nBoard, takePos, retry);
+                bestValue = Int32.MinValue;
+                foreach (Node node in state.children)
+                {
+                    Node eval = minimax(node, depth-1);
+                    if (eval.value > bestValue)
+                    {
+                        bestValue   = eval.value;
+                        bestNode    = eval;
+                    }
+                }
+            }
+            else
+            {
+                bestValue = Int32.MaxValue;
+                foreach (Node node in state.children)
+                {
+                    Node eval = minimax(node, depth-1);
+                    if (eval.value < bestValue)
+                    {
+                        bestValue   = eval.value;
+                        bestNode    = eval;
+                    }
+                }
             }
 
-            return nStates;
+            // Update value and return
+            state.value = bestNode.value;
+            state.takeNext = bestNode.takePrev;
+            return state;
         }
 
-        private void valueState(State state, Side maximizingPlayer)
+        private int valueState(Node node)
         {
-            state.value = state.board.getKalaha(maximizingPlayer) * KALAHA_MULT;
-            /*
-            if (state.retry)
-                state.value *= RETRY_MULT;
-                */
+            Board board = node.board;
+            return board.getKalaha(Side.NORTH) - board.getKalaha(Side.SOUTH);
         }
 
         /////////////////////////////////// TEST SECTION! ///////////////////////////////////
 
-        /// <summary>
-        /// REMOVE!
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="maximizingPlayer"></param>
-        /// <returns></returns>
-        public State[] testExpand(State state, Side maximizingPlayer)
-        {
-            return expand(state, maximizingPlayer);
-        }
-
-        /// <summary>
-        /// REMOVE!
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="maximizingPlayer"></param>
-        /// <returns></returns>
-        public State testValueState(State state, Side maximizingPlayer)
-        {
-            valueState(state, maximizingPlayer);
-            return state;
-        }
-
-        /// <summary>
-        /// REMOVE!
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="maximizingPlayer"></param>
-        /// <param name="depth"></param>
-        /// <returns></returns>
-        public State testMinimax(State state, Side maximizingPlayer, int depth)
-        {
-            return minimax(state, maximizingPlayer, depth);
-        }
+       public Node testMinimax(Node state, int depth)
+       {
+           return minimax(state, depth);
+       }
     }
 }

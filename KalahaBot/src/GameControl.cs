@@ -25,11 +25,13 @@ namespace KalahaBot
                 {
                     player2 = new HumanPlayer(Side.NORTH);
                     player2.init();
+                
                     break;
                 }
                 else if (northPlayerPrompt.Equals("n"))
                 {
-                    throw new System.NotImplementedException();
+                    player2 = new Agent(Side.NORTH);
+                    player2.init();
                     break;
                 }
                 else
@@ -48,7 +50,8 @@ namespace KalahaBot
                 }
                 else if (southPlayerPrompt.Equals("n"))
                 {
-                    throw new System.NotImplementedException();
+                    player1 = new Agent(Side.SOUTH);
+                    player1.init();
                     break;
                 }
                 else
@@ -56,7 +59,7 @@ namespace KalahaBot
                     Console.WriteLine("Please write either y or n");
                 }
             }
-
+            
             IPlayer currentPlayer = player1;
             while (true)
             {

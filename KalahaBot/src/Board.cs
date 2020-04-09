@@ -99,7 +99,7 @@ namespace KalahaBot
         /// start from, and the second is which pit to start from.
         /// </summary>
         /// <param name="side">North or South</param>
-        /// <param name="takePosition">Which pit to take balls from</param>
+        /// <param name="takePosition">The index of the pit to take balls from</param>
         public bool move(Side side, int takePosition)
         {
             switch (side)
@@ -155,6 +155,26 @@ namespace KalahaBot
         public int getInitialBalls() { return this.initialBalls; }
 
         public int[] getPits() { return this.pits; }
+
+        public int[] getPits(Side side)
+        {
+            int[] nPits = new int[pitCount];
+            switch (side)
+            {
+                case Side.NORTH:
+                    for (int i=0; i<nPits.Length; i++)
+                        nPits[i] = this.pits[i];
+                    return nPits;
+
+                case Side.SOUTH:
+                    for (int i=0, j=this.pitCount+1; i < nPits.Length; i++, j++)
+                        nPits[i] = this.pits[j];
+                    return nPits;
+
+                default:
+                    return nPits;
+            }
+        }
 
         public override string ToString()
         {
