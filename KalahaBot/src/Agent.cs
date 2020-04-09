@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace KalahaBot
 {
@@ -92,6 +93,8 @@ namespace KalahaBot
 
         public void makeMove(Board board)
         {
+            Stopwatch sw = new Stopwatch();
+            TimeSpan timeSpan;
             bool retry = false;
             do 
             {
@@ -103,13 +106,22 @@ namespace KalahaBot
 
                 //Console.WriteLine("---------------- INITIAL STATE ----------------\n" + currState + "\n---------------- END Initial state ----------------\n");
 
+                // Start stopwatch
+                sw.Start();
+
                 // Run minimax
                 minimax(currState, 8);
+
+                // Stop stopwatch and retrieve TimeSpan
+                sw.Stop();
+                timeSpan = sw.Elapsed;
+                sw.Reset();
 
                 //Console.WriteLine("---------------- NEW STATE ----------------\n" + currState + "\n ---------------- END New state ----------------\n");
 
                 // Make move
-                Console.WriteLine(string.Format("{0} takes from pit {1} - Searched {2} states\n", this.name, currState.takeNext+1, this.statesExpanded));
+                Double millis = timeSpan.TotalMilliseconds;
+                Console.WriteLine(string.Format("{0} takes from pit {1} - Searched {2} states in {3} ms - {4} ms/state\n", this.name, currState.takeNext+1, this.statesExpanded, millis, millis/statesExpanded));
                 retry = board.move(this.side, currState.takeNext);
             }
             while(retry);
