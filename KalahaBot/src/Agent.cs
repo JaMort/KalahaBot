@@ -123,6 +123,8 @@ namespace KalahaBot
                 Double millis = timeSpan.TotalMilliseconds;
                 Console.WriteLine(string.Format("{0} takes from pit {1} - Searched {2} states in {3} ms - {4} ms/state\n", this.name, currState.takeNext+1, this.statesExpanded, millis, millis/statesExpanded));
                 retry = board.move(this.side, currState.takeNext);
+                if (retry)
+                    Console.WriteLine(board);
             }
             while(retry);
 
@@ -134,7 +136,7 @@ namespace KalahaBot
             statesExpanded++;
 
             // Terminating condition
-            if (depth == 0)
+            if (depth == 0 || state.board.isGameOver())
             {
                 state.value = valueState(state);
                 //Console.WriteLine("---------------- Terminating call ----------------\n" + state + "---------------- END ----------------");

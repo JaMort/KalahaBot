@@ -115,6 +115,28 @@ namespace KalahaBot
             }
         }
 
+        /// <summary>
+        /// Checks whether the game is over
+        /// </summary>
+        /// <returns>true or false</returns>
+        public bool isGameOver()
+        {
+            // Win and Tie conditions
+            int tie = this.initialBalls * this.pitCount;
+
+            if (this.pits[indexNorthKalaha] < tie && this.pits[indexSouthKalaha] < tie)
+                return false;
+
+            else if (this.pits[indexNorthKalaha] == tie && this.pits[indexSouthKalaha] == tie)
+                return true;
+
+            else if (this.pits[indexNorthKalaha] > tie || this.pits[indexSouthKalaha] > tie)
+                return true;
+            
+            else 
+                return false;
+        }
+
         public int getKalaha(Side side)
         {
             switch (side)
