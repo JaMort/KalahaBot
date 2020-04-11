@@ -6,8 +6,7 @@ namespace KalahaBot
     {
         public static void Main(string[] args)
         {
-            Board testboard = new Board(3, 3);
-            GameControl game = new GameControl(testboard);
+            GameControl game = new GameControl(new Board(6, 6));
             game.init();
         }
     }

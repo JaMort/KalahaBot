@@ -77,8 +77,6 @@ namespace KalahaBot
 
     public class Agent : IPlayer
     {
-        private const int RETRY_MULT = 10;
-        private const int KALAHA_MULT = 1;
         public string name { get; set; }
         private Side side;
         private long statesExpanded;
@@ -104,20 +102,16 @@ namespace KalahaBot
                 // Create node/state
                 Node currState = new Node(board, this.side);
 
-                //Console.WriteLine("---------------- INITIAL STATE ----------------\n" + currState + "\n---------------- END Initial state ----------------\n");
-
                 // Start stopwatch
                 sw.Start();
 
                 // Run minimax
-                minimax(currState, 8);
+                minimax(currState, 10, Int32.MinValue, Int32.MaxValue);
 
                 // Stop stopwatch and retrieve TimeSpan
                 sw.Stop();
                 timeSpan = sw.Elapsed;
                 sw.Reset();
-
-                //Console.WriteLine("---------------- NEW STATE ----------------\n" + currState + "\n ---------------- END New state ----------------\n");
 
                 // Make move
                 Double millis = timeSpan.TotalMilliseconds;
@@ -130,6 +124,80 @@ namespace KalahaBot
 
         }
 
+        /// <summary>
+        /// Minimax with pruning.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="depth"></param>
+        /// <param name="alpha"></param>
+        /// <param name="beta"></param>
+        /// <returns></returns>
+        private Node minimax(Node state, int depth, int alpha, int beta)
+        {
+            // Update states expanded
+            statesExpanded++;
+
+            // Terminating condition
+            if (depth == 0 || state.board.isGameOver())
+            {
+                state.value = valueState(state);
+                return state;
+            }
+
+            // Expand nodes
+            state.expand();
+
+            // Find best
+            int bestValue; Node bestNode = new Node();
+            if (state.isMaximizing)
+            {
+                bestValue = Int32.MinValue;
+                foreach (Node node in state.children)
+                {
+                    Node eval = minimax(node, depth-1, alpha, beta);
+                    if (eval.value > bestValue)
+                    {
+                        bestValue   = eval.value;
+                        bestNode    = eval;
+                    }
+                    alpha = Math.Max(alpha, bestValue);
+
+                    // Prune
+                    if (beta <= alpha)
+                        break;
+                }
+            }
+            else
+            {
+                bestValue = Int32.MaxValue;
+                foreach (Node node in state.children)
+                {
+                    Node eval = minimax(node, depth-1, alpha, beta);
+                    if (eval.value < bestValue)
+                    {
+                        bestValue   = eval.value;
+                        bestNode    = eval;
+                    }
+                    beta = Math.Min(beta, bestValue);
+
+                    // Prune
+                    if (beta <= alpha)
+                        break;
+                }
+            }
+
+            // Update value and return
+            state.value = bestNode.value;
+            state.takeNext = bestNode.takePrev;
+            return state;
+        }
+
+        /// <summary>
+        /// Minimax algorithm without pruning.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="depth"></param>
+        /// <returns></returns>
         private Node minimax(Node state, int depth)
         {
             // Update states expanded
@@ -139,7 +207,6 @@ namespace KalahaBot
             if (depth == 0 || state.board.isGameOver())
             {
                 state.value = valueState(state);
-                //Console.WriteLine("---------------- Terminating call ----------------\n" + state + "---------------- END ----------------");
                 return state;
             }
 
@@ -147,8 +214,7 @@ namespace KalahaBot
             state.expand();
 
             // Find best
-            int bestValue;
-            Node bestNode = new Node();
+            int bestValue; Node bestNode = new Node();
             if (state.isMaximizing)
             {
                 bestValue = Int32.MinValue;
@@ -190,9 +256,9 @@ namespace KalahaBot
 
         /////////////////////////////////// TEST SECTION! ///////////////////////////////////
 
-       public Node testMinimax(Node state, int depth)
-       {
-           return minimax(state, depth);
-       }
+        public Node testMinimax(Node state, int depth, int alpha, int beta)
+        {
+           return minimax(state, depth, alpha, beta);
+        }
     }
 }
